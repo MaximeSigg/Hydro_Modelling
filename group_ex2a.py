@@ -8,6 +8,7 @@
 where we assume a linear storage, where the discharge is proportional
 to the storage. Add a constant precipitation (input) of 10mm per time step
 during the first 10 time steps.
+-------------------------------------------------------------------
 '''
 
 
