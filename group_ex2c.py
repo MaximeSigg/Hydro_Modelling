@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 # FLOWER POT MODEL WITH Smax AND ET: Parameters
 
-k = 0.1          # discharge constant [1/step]
+k = 0.1          # discharge constant
 Smax = 50.0      # maximum storage capacity [mm] (arbitrary, can be changed)
 ET0 = 2.0        # reference evapotranspiration [mm/step]
 n = 50           # number of time steps
@@ -34,6 +34,8 @@ q = np.zeros(n)           # regular (linear) discharge
 q_out = np.zeros(n)       # overflow when the storage is full
 q_tot = np.zeros(n)       # total discharge = q + q_out
 
+#as mentioned in the PDF file, there is a factor * Delta t = 1 (time step) in the S(t+1) equation (given that k is dimensionless)
+#this applies to all exercises.
 
 for t in range(n):
     available = S[t] + p[t]                  # water that can be used in this step
