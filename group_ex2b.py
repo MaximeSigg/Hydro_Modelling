@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 # CASCADE MODEL: Parameters
 
 n = 50                          # number of time steps
-k_values = [0.1, 0.4, 0.7]      # discharge constants [1/step]
+k_values = [0.1, 0.4, 0.7]      # discharge constants
 p = np.zeros(n); p[:10] = 10    # precipitation [mm per step]
 
 

@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 # FLOWER POT MODEL WITH Smax AND ET: Parameters
 
-k = 0.1          # discharge constant [1/step]
+k = 0.1          # discharge constant
 Smax = 50.0      # maximum storage capacity [mm] (arbitrary, can be changed)
 ET0 = 2.0        # reference evapotranspiration [mm/step]
 n = 50           # number of time steps
