@@ -40,10 +40,10 @@ ax[0].bar(t, p, color="#7fb2ff")
 ax[0].set_ylabel("P(t) [mm/step]")
 ax[0].set_title(f"Single linear storage (k = {k})")
 
-ax[1].plot(t, S[:-1], color="#4c9a2a", lw=2)
+ax[1].plot(t, S[:-1], color="#52A675", lw=2)
 ax[1].set_ylabel("S(t) [mm]")
 
-ax[2].plot(t, q, color="#1f77b4", lw=2)
+ax[2].plot(t, q, color="#4682B4", lw=2)
 ax[2].set_ylabel("Q(t) [mm/step]")
 ax[2].set_xlabel("time step")
 
