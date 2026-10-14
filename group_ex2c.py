@@ -69,7 +69,7 @@ t = np.arange(n)
 fig, ax = plt.subplots(4, 1, figsize=(8, 10), sharex=True)
 
 ax[0].bar(t, p, color="#7fb2ff")
-ax[0].set_ylabel("p(t) [mm]")
+ax[0].set_ylabel("P(t) [mm/step]")
 ax[0].set_title(f"Linear storage with Smax and ET (k = {k}, Smax = {Smax:g} mm, ET0 = {ET0:g} mm/step)")
 
 ax[1].plot(t, S[:-1], color="#4c9a2a", lw=2)
@@ -80,10 +80,10 @@ ax[1].legend()
 ax[2].plot(t, et, color="#e0a800", lw=2)
 ax[2].set_ylabel("ET(t) [mm/step]")
 
-ax[3].plot(t, q, color="#1f77b4", lw=2, label="q(t) (linear)")
-ax[3].plot(t, q_out, color="#d62728", lw=2, label="overflow")
-ax[3].plot(t, q_tot, color="black", lw=1.5, ls="--", label="q_tot(t)")
-ax[3].set_ylabel("discharge [mm/step]")
+ax[3].plot(t, q, color="#1f77b4", lw=2, label="Q(t)")
+ax[3].plot(t, q_out, color="#d62728", lw=2, label="Q_out")
+ax[3].plot(t, q_tot, color="black", lw=1.5, ls="--", label="Q_tot(t)")
+ax[3].set_ylabel("Discharge [mm/step]")
 ax[3].set_xlabel("time step")
 ax[3].legend()
 

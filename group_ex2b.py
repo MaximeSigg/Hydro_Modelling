@@ -82,19 +82,19 @@ t = np.arange(n)
 fig, ax = plt.subplots(4, 1, figsize=(8, 10), sharex=True)
 
 ax[0].bar(t, p, color="#7fb2ff")
-ax[0].set_ylabel("p(t) [mm]")
+ax[0].set_ylabel("P(t) [mm/step]")
 ax[0].set_title(f"Storage cascade (k1 = {k1_ex}, k2 = {k2_ex})")
 
-ax[1].plot(t, S1[:-1], color="#9467bd", lw=2, label="S1(t)")
-ax[1].plot(t, S2[:-1], color="#4c9a2a", lw=2, label="S2(t)")
+ax[1].plot(t, S1[:-1], color="#4c9a2a", lw=2, label="S1(t)")
+ax[1].plot(t, S2[:-1], color="#356c1d", lw=2, label="S2(t)")
 ax[1].set_ylabel("S(t) [mm]")
 ax[1].legend()
 
-ax[2].plot(t, q1, color="#9467bd", lw=2)
-ax[2].set_ylabel("q1(t) [mm/step]")
+ax[2].plot(t, q1, color="#1f77b4", lw=2)
+ax[2].set_ylabel("Q1(t) [mm/step]")
 
-ax[3].plot(t, q2, color="#1f77b4", lw=2)
-ax[3].set_ylabel("q2(t) [mm/step]")
+ax[3].plot(t, q2, color="#12476c", lw=2)
+ax[3].set_ylabel("Q2(t) [mm/step]")
 ax[3].set_xlabel("time step")
 
 for a in ax:
@@ -113,15 +113,15 @@ fig, ax = plt.subplots(len(k_values), len(k_values), figsize=(10, 8),
 for i, k1 in enumerate(k_values):
     for j, k2 in enumerate(k_values):
         q2 = results[(k1, k2)][3]
-        ax[i, j].plot(t, q2, color="#1f77b4", lw=2)
+        ax[i, j].plot(t, q2, color="#12476c", lw=2)
         ax[i, j].axvline(10, color="gray", ls="--", lw=1)
         ax[i, j].grid(alpha=0.3)
-        ax[i, j].set_title(f"k1 = {k1}, k2 = {k2}\nmax = {max_q[i, j]:.2f}", fontsize=9)
+        ax[i, j].set_title(f"k1 = {k1}, k2 = {k2}", fontsize=9)
 
 for a in ax[-1, :]:
     a.set_xlabel("time step")
 for a in ax[:, 0]:
-    a.set_ylabel("q2(t) [mm/step]")
+    a.set_ylabel("Q2(t) [mm/step]")
 
 fig.suptitle("Discharge of the storage cascade for all combinations of k1 and k2")
 plt.tight_layout()
