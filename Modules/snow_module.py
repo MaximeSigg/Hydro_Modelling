@@ -1,14 +1,16 @@
+'''
+SNOW MODULE: SNOW/RAIN SEPARATION FUNCTION
+
+This function  implements the snow/rain separation from the precipitation data. 
+We use the equation from Magnusson et. al., 2024
+'''
+
 import numpy as np
 import pandas as pd
 
-catchment = pd.read_csv('CAMELS_CH_obs_based_2469.csv')
+#catchment = pd.read_csv('CAMELS_CH_obs_based_2469.csv')
 
-
-def snow_module(catchment,
-                Tpbase = 2,
-                mp = 1,
-                mf = 3,
-                T_T = 2):
+def snow_module(catchment,Tpbase = 2,mp = 1,mf = 3,T_T = 2):
     """Ajoute au tableau : Snowfall, Rainfall, Melt, SWE et Actual_melt."""
     '''Parameters:
             -----------
