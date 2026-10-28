@@ -19,20 +19,20 @@ import matplotlib.pyplot as plt
 
 # FLOWER POT MODEL: Parameters
 
-k = 0.1          # discharge constant (dimensionless)
+k = 0.1          # discharge constant
 n = 50           # number of time steps
 p = np.zeros(n); p[:10] = 10   # mm per step
 S = np.zeros(n+1)
 q = np.zeros(n)
 
-#as mentioned in the PDF file, there is a factor * Delta t = 1 (time step) in the S(t+1) equation (given that k is dimensionless)
-#this applies to all exercises.
 
 for t in range(n):
     q[t] = k * S[t]
     S[t+1] = S[t] + p[t] - q[t]
 
 
+#as mentioned in the PDF file, there is a factor * Delta t = 1 (time step) in the S(t+1) equation (given that k is dimensionless)
+#this applies to all exercises.
 
 # Plot
 t = np.arange(n)

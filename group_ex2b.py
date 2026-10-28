@@ -22,9 +22,11 @@ import matplotlib.pyplot as plt
 # CASCADE MODEL: Parameters
 
 n = 50                          # number of time steps
-k_values = [0.1, 0.4, 0.7]      # discharge constants
+k_values = [0.1, 0.4, 0.7]      # discharge constants 
 p = np.zeros(n); p[:10] = 10    # precipitation [mm per step]
 
+#as mentioned in the PDF file, there is a factor * Delta t = 1 (time step) in the S(t+1) equation (given that k is dimensionless)
+#this applies to all exercises.
 
 def run_cascade(k1, k2, p):
     """Simulate two linear storages in series.
