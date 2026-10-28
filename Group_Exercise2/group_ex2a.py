@@ -55,5 +55,5 @@ for a in ax:
     a.grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("../flowerpot_plot.png", dpi=150)
+plt.savefig("../../flowerpot_plot.png", dpi=150)
 plt.show()
