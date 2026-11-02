@@ -1,5 +1,6 @@
 # Hydro_Modelling
-Exercices and code for hydro modelling course
+Exercices and code for Hydrology Modelling Course.
+Authors: Antonia Schibbe, Jordi Fornés Mengual, Maxime Siggen
 
 ## GROUP EXERCISE 2
 Flowerpot initial models can be found in folder Group Exercise 2.
