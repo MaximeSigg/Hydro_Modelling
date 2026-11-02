@@ -1,11 +1,28 @@
+'''
+--------------------------------------------------------------------
+                        GROUP EXERCISE 3
+                    Station Comparison Script
+ Authors: Antonia Schibbe, Jordi Fornés Mengual, Maxime Siggen
+-------------------------------------------------------------------
+ Description: In this script we compare the data from the CAMELS observation
+ dataset, the simulated CAMELS discharge, and the MeteoSwiss KAS (Kandersteg)
+ station (csv available in Datasets folder). We compare rain from precipitation
+ data of CAMELS vs rain obtained from precipitation from MeteoSwiss station
+ using our snow/rain separation model. Then, we apply our flowerpot discharge model,
+ to both precipitation data from CAMELS and from MeteoSwiss station, and compare it
+ to the CAMELS discharge data.
+-------------------------------------------------------------------
+'''
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pandas as pd
 from Modules.snow_module import snow_module
 from Modules.interception_module import interception_module
-from Modules.storage_module import storage_module
-
+from Modules.storage_module_linear import storage_module
+from Modules.storage_module1 import storage_module
+from Modules.discharge_module import discharge_module
 
 
 def load_station(path, col='rre150d0'):
@@ -14,13 +31,14 @@ def load_station(path, col='rre150d0'):
     return pd.to_numeric(s[col], errors='coerce').rename('precip_station(mm/d)')
 
 def run_model(observed, simulated, precip=None):
-    """Run the full chain. precip=None -> CAMELS precipitation, else a Series indexed by date."""
+    """Run the full model. Calls all the modules """
     obs = observed.copy()
     if precip is not None:
         obs['precipitation(mm/d)'] = precip.reindex(obs.index)
     df = snow_module(obs)
     df = interception_module(df, simulated)
-    return storage_module(df)
+    df = storage_module(df,k=0.1, Smax=300, initial_storage = 0)
+    return discharge_module(df)
 
 def plot_q(ax, d, title, q_obs, q_mod, p_col):
     ax.plot(d.index, d[q_obs], color='k', label='Q observed')
@@ -32,7 +50,7 @@ def plot_q(ax, d, title, q_obs, q_mod, p_col):
     axp.set_ylabel('Precip (mm/d)')
 
 def compare(df_camels, df_station, events, q_obs='discharge_spec(mm/d)',
-            q_mod='Water_input(mm/d)', p_col='precipitation(mm/d)'):
+            q_mod='Q_tot_discharge_(mm/d)', p_col='precipitation(mm/d)'):
     periods = [('full period', df_camels.index.min(), df_camels.index.max())] + \
               [(f'{a} to {b}', a, b) for a, b in events]
     for name, a, b in periods:
@@ -71,5 +89,5 @@ station = load_station('Datasets/ogd-smn-precip_kas_d_historical.csv')
 df_camels  = run_model(observed, simulated)                  # CAMELS precipitation
 df_station = run_model(observed, simulated, precip=station)  # station precipitation
 
-events = [('2007-06-01', '2007-08-31'), ('2010-05-01', '2010-07-31')]   # pick real events
+events = [('2005-10-01', '2006-09-30'), ('2010-05-01', '2010-07-31')]   # CHANGE EVENTS
 compare(df_camels, df_station, events)

@@ -1,11 +1,15 @@
 '''
 --------------------------------------------------------------------
                         GROUP EXERCISE 3
-             Exercise 2a : Flowerpot model for Kander - Hondrich Catchment
+             MAIN SCRIPT: Flowerpot model for Kander - Hondrich Catchment
  Authors: Antonia Schibbe, Jordi Fornés Mengual, Maxime Siggen
 -------------------------------------------------------------------
  Description: In this exercise we implement the flowerpot model for the
- Kander - Hondrich catchment.
+ Kander - Hondrich catchment. This script contains the basic functioning
+ of our flowerpot model. The different funcitons can be found in the Modules
+ folder. This script provides a basic plot comparison for the CAMELS discharge
+ and our modelled discharge. For a further comparison with the MeteoSwiss station
+ check the Group3_Station_Comparison.py script.
 -------------------------------------------------------------------
 '''
 
@@ -15,23 +19,28 @@ from Modules.interception_module import interception_module
 from Modules.storage_module1 import storage_module                   #called storage_module1 (WITH THE 1)
 from Modules.discharge_module import discharge_module
 
-
-catchment_obs = pd.read_csv('Datasets/CAMELS_CH_obs_based_2469.csv')
-catchment_sim = pd.read_csv('Datasets/CAMELS_CH_sim_based_2469.csv')
-df_snow_rain = snow_module(catchment_obs,Tpbase = 1.5,mp = 1,mf = 2,T_T = 2)
-
-df_snow_rain_intercept = interception_module(df_snow_rain, catchment_sim, Icept_threshold=1)
-df_storage = storage_module(df_snow_rain_intercept, initial_storage = 0)
-df_discharge = discharge_module(df_storage)
-
-#print(df_discharge)
-print('hi, Im jordi')
-
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+
+#Load CAMELS observed and simulated data
+catchment_obs = pd.read_csv('Datasets/CAMELS_CH_obs_based_2469.csv')
+catchment_sim = pd.read_csv('Datasets/CAMELS_CH_sim_based_2469.csv')
+
+#Apply the different modules
+
+#1 Snow/rain separation module
+df_snow_rain = snow_module(catchment_obs,Tpbase = 1.5,mp = 1,mf = 2,T_T = 2)
+#2 Interception of rain
+df_snow_rain_intercept = interception_module(df_snow_rain, catchment_sim, Icept_threshold=1)
+#3 Storage module: evolution of storage, includes the linear flowerpot for the discharge.
+df_storage = storage_module(df_snow_rain_intercept, k=0.1, Smax=300, initial_storage = 0) # Change params
+#4 Discharge module: adds discharge + overflow
+df_discharge = discharge_module(df_storage)
+
+
+### Plots
 #Creating the plots discharge observed vs modelled and precipitation inverted
 df_discharge['date'] = pd.to_datetime(df_discharge['date'])
 df_year_2000 = df_discharge[
