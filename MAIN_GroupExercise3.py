@@ -43,7 +43,8 @@ df_discharge = discharge_module(df_storage)
 ### Plots
 #Creating the plots discharge observed vs modelled and precipitation inverted
 
-df = df_discharge.set_index('date')
+df_discharge['date'] = pd.to_datetime(df_discharge['date'])
+df = df_discharge.set_index('date').sort_index()
 periods = [('2013-10-01', '2014-09-30'), ('2005-10-01', '2006-09-30')]
 pmax = max(df.loc[a:b, 'precipitation(mm/d)'].max() for a, b in periods)
 
