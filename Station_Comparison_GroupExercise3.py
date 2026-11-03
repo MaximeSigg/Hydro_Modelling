@@ -39,24 +39,30 @@ def run_model(observed, simulated, precip=None):
     df = storage_module(df,k=0.1, Smax=300, initial_storage = 0)
     return discharge_module(df)
 
-def plot_q(ax, d, title, q_obs, q_mod, p_col):
+def plot_q(ax, d, title, q_obs, q_mod, p_col, pmax):
     ax.plot(d.index, d[q_obs], color='k', label='Q observed')
     ax.plot(d.index, d[q_mod], color='tab:red', label='Q modelled')
-    ax.set_ylabel('Discharge (mm/d)'); ax.set_title(title)
+    ax.set_ylabel('Discharge [mm/d]'); ax.set_title(title)
     axp = ax.twinx()
     axp.bar(d.index, d[p_col], color='tab:blue', width=1.0)
-    axp.set_ylim(d[p_col].max() * 3, 0)          # reversed precipitation on top
-    axp.set_ylabel('Precip (mm/d)')
+    axp.set_ylim(pmax * 3, 0)          # reversed precipitation on top
+    axp.set_ylabel('Precip [mm/d]')
 
 def compare(df_camels, df_station, events, q_obs='discharge_spec(mm/d)',
             q_mod='Q_tot_discharge_(mm/d)', p_col='precipitation(mm/d)'):
     periods = [('full period', df_camels.index.min(), df_camels.index.max())] + \
               [(f'{a} to {b}', a, b) for a, b in events]
     for name, a, b in periods:
-        fig, axs = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
-        plot_q(axs[0], df_station.loc[a:b], f'With station precip ({name})', q_obs, q_mod, p_col)
-        plot_q(axs[1], df_camels.loc[a:b],  'With CAMELS precip',            q_obs, q_mod, p_col)
-        axs[0].legend(loc='lower left'); fig.tight_layout()
+        fig, axs = plt.subplots(2, 1, figsize=(10, 6), sharex=True, sharey=True)
+        pmax = max(df_camels.loc[a:b, p_col].max(), df_station.loc[a:b, p_col].max())
+        plot_q(axs[0], df_station.loc[a:b], f'With station precip', q_obs, q_mod, p_col, pmax)
+        plot_q(axs[1], df_camels.loc[a:b],  'With CAMELS precip',            q_obs, q_mod, p_col, pmax)
+        handles = [plt.Line2D([], [], color='k'),
+                   plt.Line2D([], [], color='tab:red'),
+                   plt.Rectangle((0, 0), 1, 1, color='tab:blue')]
+        fig.legend(handles, ['Observed discharge', 'Modelled discharge', 'Precipitation'],
+                   loc='lower center', ncol=3, frameon=False)
+        fig.tight_layout(rect=(0, 0.05, 1, 1))
 
     p = pd.concat([df_camels[p_col].rename('camels'),
                    df_station[p_col].rename('station')], axis=1).dropna()
@@ -66,16 +72,17 @@ def compare(df_camels, df_station, events, q_obs='discharge_spec(mm/d)',
     c = p.cumsum(); cl = [0, c.max().max()]
     fig, ax = plt.subplots(figsize=(5, 5))
     ax.plot(c['station'], c['camels'], label='station vs CAMELS')
-    ax.plot(cl, cl, 'k--', label='1:1 line')
-    ax.set_xlabel('Cumulated precip station (mm)'); ax.set_ylabel('Cumulated precip CAMELS (mm)')
+    ax.plot(cl, cl, 'tab:red', label='1:1 line')
+    ax.set_xlabel('Cumulated precip station [mm]'); ax.set_ylabel('Cumulated precip CAMELS [mm]')
+    ax.ticklabel_format(style='sci', scilimits=(0, 0), axis='both')
     ax.set_aspect('equal'); ax.legend(); fig.tight_layout()
 
     # daily scatter
     fig, ax = plt.subplots(figsize=(5, 5))
-    ax.scatter(p['station'], p['camels'], s=6, alpha=0.3)
-    ax.plot(lim, lim, 'k--')
-    ax.set_xlabel('Precip station (mm/d)'); ax.set_ylabel('Precip CAMELS (mm/d)')
-    ax.set_aspect('equal'); fig.tight_layout()
+    ax.scatter(p['station'], p['camels'], s=6, alpha=0.3, color='tab:blue', label='Daily values')
+    ax.plot(lim, lim, 'tab:red', label='1:1 line')
+    ax.set_xlabel('Precip station [mm/d]'); ax.set_ylabel('Precip CAMELS [mm/d]')
+    ax.set_aspect('equal'); ax.legend(loc='upper left'); fig.tight_layout()
     plt.show()
 
 

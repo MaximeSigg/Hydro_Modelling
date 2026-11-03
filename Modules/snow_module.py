@@ -2,7 +2,7 @@
 SNOW MODULE: SNOW/RAIN SEPARATION FUNCTION
 
 This function  implements the snow/rain separation from the precipitation data. 
-We use the equation from Magnusson et. al., 2024
+We use the equation from Magnusson et. al., 2014
 '''
 
 import numpy as np

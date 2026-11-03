@@ -6,7 +6,7 @@
 -------------------------------------------------------------------
  Description: In this exercise we implement the flowerpot model for the
  Kander - Hondrich catchment. This script contains the basic functioning
- of our flowerpot model. The different funcitons can be found in the Modules
+ of our flowerpot model. The different functions can be found in the Modules
  folder. This script provides a basic plot comparison for the CAMELS discharge
  and our modelled discharge. For a further comparison with the MeteoSwiss station
  check the Group3_Station_Comparison.py script.
@@ -42,43 +42,40 @@ df_discharge = discharge_module(df_storage)
 
 ### Plots
 #Creating the plots discharge observed vs modelled and precipitation inverted
-df_discharge['date'] = pd.to_datetime(df_discharge['date'])
-df_year_2000 = df_discharge[
-    (df_discharge['date'] >= '2005-10-01')
-    & (df_discharge['date'] <= '2006-09-30')
-]
+
+df = df_discharge.set_index('date')
+periods = [('2013-10-01', '2014-09-30'), ('2005-10-01', '2006-09-30')]
+pmax = max(df.loc[a:b, 'precipitation(mm/d)'].max() for a, b in periods)
+
+
 
 fig, ax1 = plt.subplots(figsize=(10, 6))
 
-# --- Top Plot: Inverted Precipitation ---
-ax2 = ax1.twinx()
-ax2.bar(df_year_2000['date'],
-    df_year_2000['precipitation(mm/d)'],
-    color='lightblue',
-    label='Precipitation')
-ax2.set_ylabel('Precip. [mm/d]')
-ax2.invert_yaxis()  # Invert y-axis so rainfall hangs from top
-ax2.set_ylim(df_year_2000['precipitation(mm/d)'].max() * 3.5, 0)
 
-# --- Bottom Plot: Observed vs Modelled Discharge ---
-# Note: Replace 'q_obs(mm/d)' with your exact column name for observed runoff
-ax1.plot(df_year_2000['date'],
-    df_year_2000['discharge_spec(mm/d)'],
-    color='black',
-    label='Observed Streamflow')
-ax1.plot(df_year_2000['date'],
-    df_year_2000['Q_tot_discharge_(mm/d)'],
-    color='steelblue',
-    linestyle='--',
-    label='Modelled Streamflow')
+for a, b in periods:
+    d = df.loc[a:b]
+    fig, ax = plt.subplots(figsize=(9, 4))
 
-ax1.set_xlabel('Date')
-ax1.set_ylabel('Discharge [mm/d]')
-ax1.grid(True, linestyle=':', alpha=0.6)
-ax1.legend()
+    # --- Bottom Plot: Observed vs Modelled Discharge ---
+    ax.plot(d.index, d['discharge_spec(mm/d)'], color='k')
+    ax.plot(d.index, d['Q_tot_discharge_(mm/d)'], color='tab:red')
+    ax.set_ylabel('Discharge [mm/d]')
+    ax.grid(True, linestyle=':', alpha=0.6)
+    # Format date axis to show Year-Month
+    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
 
-# Format date axis to show Year-Month
-ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    # --- Top Plot: Inverted Precipitation ---
+    axp = ax.twinx()
+    axp.bar(d.index, d['precipitation(mm/d)'], color='tab:blue', width=1.0)
+    axp.set_ylim(pmax * 3, 0)
+    axp.set_ylabel('Precip [mm/d]')
 
-plt.tight_layout()
+    handles = [plt.Line2D([], [], color='k'),
+               plt.Line2D([], [], color='tab:red'),
+               plt.Rectangle((0, 0), 1, 1, color='tab:blue')]
+    fig.legend(handles, ['Observed discharge', 'Modelled discharge', 'Precipitation'],
+               loc='lower center', ncol=3, frameon=False)
+    fig.tight_layout(rect=(0, 0.07, 1, 1))
+
 plt.show()
