@@ -9,10 +9,18 @@ import itertools
 import numpy as np
 import pandas as pd
 
-from .snow_module import snow_module
-from .interception_module import interception_module
-from .storage_module1 import storage_module
-from .discharge_module import discharge_module
+try:
+  # Quand le script est exécuté depuis MAIN_GroupExercise3.py
+  from Modules.discharge_module import discharge_module
+  from Modules.interception_module import interception_module
+  from Modules.snow_module import snow_module
+  from Modules.storage_module1 import storage_module
+except ModuleNotFoundError:
+  # Quand calibration_module.py est exécuté directement dans le dossier Modules
+  from discharge_module import discharge_module
+  from interception_module import interception_module
+  from snow_module import snow_module
+  from storage_module1 import storage_module
 
 
 def nse(o, m):
@@ -67,6 +75,7 @@ def calibration_module(obs, sim):
     best_k = results[0][2]
     best_Smax = results[0][3]
     return best_snow, best_k, best_Smax
+
 
 # best snow includes pest snow params stored as: {'mp': 2, 'Tpbase': 1.5, 'mf': 4, 'T_T': 0}
 # results [0][2] is the best k param
