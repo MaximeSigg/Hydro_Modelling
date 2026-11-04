@@ -22,6 +22,7 @@ from Modules.snow_module import snow_module
 from Modules.interception_module import interception_module
 from Modules.storage_module1 import storage_module
 from Modules.discharge_module import discharge_module
+from Modules.calibration_module import calibration_module
 
 
 def load_station(path, col='rre150d0'):
@@ -34,9 +35,11 @@ def run_model(observed, simulated, precip=None):
     obs = observed.copy()
     if precip is not None:
         obs['precipitation(mm/d)'] = precip.reindex(obs.index)
-    df = snow_module(obs)
+    best_snow, best_k, best_Smax = calibration_module(obs, simulated) #First calibration run
+
+    df = snow_module(obs,Tpbase = best_snow['Tpbase'],mp = best_snow['mp'],mf = best_snow['mf'],T_T = best_snow['T_T'])
     df = interception_module(df, simulated)
-    df = storage_module(df,k=0.3, Smax=300, initial_storage = 0)
+    df = storage_module(df, k=best_k, Smax=best_Smax, initial_storage = 0)
     return discharge_module(df)
 
 def plot_q(ax, d, title, q_obs, q_mod, p_col, pmax):
@@ -50,6 +53,7 @@ def plot_q(ax, d, title, q_obs, q_mod, p_col, pmax):
 
 def compare(df_camels, df_station, events, q_obs='discharge_spec(mm/d)',
             q_mod='Q_tot_discharge_(mm/d)', p_col='precipitation(mm/d)'):
+
     periods = [('full period', df_camels.index.min(), df_camels.index.max())] + \
               [(f'{a} to {b}', a, b) for a, b in events]
     for name, a, b in periods:
