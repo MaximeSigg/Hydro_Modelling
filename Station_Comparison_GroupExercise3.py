@@ -36,7 +36,7 @@ def run_model(observed, simulated, precip=None):
         obs['precipitation(mm/d)'] = precip.reindex(obs.index)
     df = snow_module(obs)
     df = interception_module(df, simulated)
-    df = storage_module(df,k=0.1, Smax=300, initial_storage = 0)
+    df = storage_module(df,k=0.3, Smax=300, initial_storage = 0)
     return discharge_module(df)
 
 def plot_q(ax, d, title, q_obs, q_mod, p_col, pmax):
@@ -95,5 +95,5 @@ station = load_station('Datasets/ogd-smn-precip_kas_d_historical.csv')
 df_camels  = run_model(observed, simulated)                  # CAMELS precipitation
 df_station = run_model(observed, simulated, precip=station)  # station precipitation
 
-events = [('2005-10-01', '2006-09-30'), ('2010-05-01', '2010-07-31')]   # CHANGE EVENTS
+events = [('2005-11-01', '2005-12-31'), ('2010-05-01', '2010-06-01')]   # CHANGE EVENTS
 compare(df_camels, df_station, events)
