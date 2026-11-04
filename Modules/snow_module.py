@@ -54,7 +54,7 @@ def snow_module(catchment,Tpbase = 1.5,mp = 1, mf = 2,T_T = 2):
 
 
 '''MINIMIZE THE RMSE between observed SWE and modelled SWE with the different parameter values.'''
-
+'''
 catchment_obs = pd.read_csv('Datasets/CAMELS_CH_obs_based_2469.csv')
 import itertools
 import numpy as np
@@ -71,7 +71,7 @@ best_params = {}
 # 2. Filter out NaNs once
 valid_mask = ~catchment_obs['swe(mm)'].isna()
 obs_swe = catchment_obs.loc[valid_mask, 'swe(mm)']
-
+'''
 '''
 # 3. Direct loop in your script
 for mp, mf, Tp, TT in itertools.product(
