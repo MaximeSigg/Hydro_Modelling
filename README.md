@@ -12,4 +12,4 @@ MAIN_GroupExercise3.py contains the basic run of the complete flowerpot model fo
 Station_Comparison_GroupExercise3.py focuses on comparing the results obtained when using CAMELS or MeteoSwiss station data.
 
 - Datasets: contains datasets for CAMELS observed/simulated and the MeteoSwiss Kander station.
-- Modules: contains the different functions such as the snow/rain separation, interception, storage and discharge that are called in the MAIN script.
+- Modules: contains the different functions such as the snow/rain separation, interception, storage and discharge that are called in the MAIN script. A calibration module it's also included which is run to select the optimal parameters for our catchment.
