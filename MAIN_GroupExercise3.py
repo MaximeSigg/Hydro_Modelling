@@ -54,7 +54,50 @@ df_discharge = discharge_module(df_storage)
 
 df_discharge['date'] = pd.to_datetime(df_discharge['date'])
 df = df_discharge.set_index('date').sort_index()
-periods = [('2013-10-01', '2014-09-30'), ('2005-10-01', '2006-09-30')]
+periods = [('1996-08-22', '1996-10-03'), ('1996-02-01', '1996-03-14')]
+# Find best and worst 6-week periods
+
+window = pd.Timedelta(weeks=6)
+step = pd.Timedelta(weeks=1)
+
+results = []
+
+start = df.index.min()
+
+while start + window <= df.index.max():
+
+    end = start + window
+    d = df.loc[start:end]
+
+    obs = d['discharge_spec(mm/d)']
+    mod = d['Q_tot_discharge_(mm/d)']
+
+    valid = obs.notna() & mod.notna()
+    obs = obs[valid]
+    mod = mod[valid]
+
+    if len(obs) > 30:
+
+        denominator = sum((obs - obs.mean())**2)
+
+        if denominator > 0:
+            nse = 1 - sum((obs - mod)**2) / denominator
+            results.append((nse, start, end))
+
+    start = start + step
+
+# Find best and worst periods
+best = max(results, key=lambda x: x[0])
+worst = min(results, key=lambda x: x[0])
+
+print("Best period:", best)
+print("Worst period:", worst)
+
+# Use these periods for plotting
+periods = [
+    (best[1], best[2]),
+    (worst[1], worst[2])
+]
 pmax = max(df.loc[a:b, 'precipitation(mm/d)'].max() for a, b in periods)
 
 
@@ -68,13 +111,13 @@ for a, b in periods:
     ax.set_ylabel('Discharge [mm/d]')
     ax.grid(True, linestyle=':', alpha=0.6)
     # Format date axis to show Year-Month
-    ax.xaxis.set_major_locator(mdates.MonthLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
+    ax.set_xticks(pd.date_range(a, b, freq='14D'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
     # --- Top Plot: Inverted Precipitation ---
     axp = ax.twinx()
     axp.bar(d.index, d['precipitation(mm/d)'], color='tab:blue', width=1.0)
-    ax.set_title(f'{a} to {b}', fontsize=10)     # <-- new line
+    ax.set_title(f'{a:%Y-%m-%d} to {b:%Y-%m-%d}', fontsize=10)
     axp.set_ylim(pmax * 3, 0)
     axp.set_ylabel('Precip [mm/d]')
 
