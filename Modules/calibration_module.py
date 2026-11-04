@@ -10,13 +10,13 @@ import numpy as np
 import pandas as pd
 
 try:
-  # Quand le script est exécuté depuis MAIN_GroupExercise3.py
+
   from Modules.discharge_module import discharge_module
   from Modules.interception_module import interception_module
   from Modules.snow_module import snow_module
   from Modules.storage_module1 import storage_module
 except ModuleNotFoundError:
-  # Quand calibration_module.py est exécuté directement dans le dossier Modules
+
   from discharge_module import discharge_module
   from interception_module import interception_module
   from snow_module import snow_module
