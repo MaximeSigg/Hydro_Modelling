@@ -72,6 +72,7 @@ best_params = {}
 valid_mask = ~catchment_obs['swe(mm)'].isna()
 obs_swe = catchment_obs.loc[valid_mask, 'swe(mm)']
 
+'''
 # 3. Direct loop in your script
 for mp, mf, Tp, TT in itertools.product(
     mp_list, mf_list, Tpbase_list, T_T_list
@@ -86,3 +87,4 @@ for mp, mf, Tp, TT in itertools.product(
     best_params = {'mp': mp, 'mf': mf, 'Tpbase': Tp, 'T_T': TT}
 
 print(f'Best RMSE: {best_rmse:.2f} mm | Best Parameters: {best_params}')
+'''
