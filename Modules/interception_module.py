@@ -1,8 +1,7 @@
 '''
-SNOW MODULE: Interception function
+INTERCEPTION MODULE
 
-This function  implements the snow/rain separation from the precipitation data.
-We use the equation from Magnusson et. al., 2024
+This function  implements the equations from the lecture.
 '''
 import numpy as np
 import pandas as pd
