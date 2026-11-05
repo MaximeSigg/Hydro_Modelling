@@ -17,6 +17,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import pandas as pd
 from Modules.snow_module import snow_module
 from Modules.interception_module import interception_module
@@ -50,6 +51,8 @@ def plot_q(ax, d, title, q_obs, q_mod, p_col, pmax):
     axp.bar(d.index, d[p_col], color='tab:blue', width=1.0)
     axp.set_ylim(pmax * 3, 0)          # reversed precipitation on top
     axp.set_ylabel('Precip [mm/d]')
+    ax.xaxis.set_major_locator(mdates.MonthLocator(bymonthday=[1, 15]))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
 def compare(df_camels, df_station, events, q_obs='discharge_spec(mm/d)',
             q_mod='Q_tot_discharge_(mm/d)', p_col='precipitation(mm/d)'):
@@ -99,5 +102,5 @@ station = load_station('Datasets/ogd-smn-precip_kas_d_historical.csv')
 df_camels  = run_model(observed, simulated)                  # CAMELS precipitation
 df_station = run_model(observed, simulated, precip=station)  # station precipitation
 
-events = [('2005-11-01', '2005-12-31'), ('2010-05-01', '2010-06-01')]   # CHANGE EVENTS
+events = [('2010-05-01', '2010-07-31')]   # CHANGE EVENTS
 compare(df_camels, df_station, events)

@@ -59,8 +59,8 @@ def calibration_module(obs, sim):
     Smax_list = [50, 100, 200, 300, 500, 750, 1000]
 
     Q_obs = obs['discharge_spec(mm/d)']
-    cal = (obs.index >= '1982-01-01') & (obs.index <= '2000-12-31')   # 1981 = spin-up
-    val = obs.index >= '2001-01-01'
+    cal = (obs.index >= '1983-01-01') & (obs.index <= '2009-12-31')   # 1981+1982 = spin-up
+    val = obs.index >= '2010-01-01'
 
     results = []
     for k, Smax in itertools.product(k_list, Smax_list):
