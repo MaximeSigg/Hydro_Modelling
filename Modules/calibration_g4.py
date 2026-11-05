@@ -92,10 +92,10 @@ def calibration_module(obs, sim):
         d = discharge_module(storage_module(df, k=k, Smax=Smax, initial_storage=0))
         Q_mod = d['Q_tot_discharge_(mm/d)']
 
-        results.append((nse(Q_obs[cal], Q_mod[cal]), nse(Q_obs[val], Q_mod[val]), k, Smax,
+        results.append((nse(Q_obs[cal], Q_mod[cal]), k, Smax,
                         nse_log(Q_obs[cal], Q_mod[cal]), nse_log(Q_obs[val], Q_mod[val]),
-                        bias(Q_obs[cal], Q_mod[cal]), bias(Q_obs[val], Q_mod[val]),
-                        kge(Q_obs[cal], Q_mod[cal]), kge(Q_obs[val], Q_mod[val])))
+                        bias(Q_obs[cal], Q_mod[cal]),
+                        kge(Q_obs[cal], Q_mod[cal])))
     results.sort(reverse=True)
     print('Best k, Smax (NSE cal, NSE val, k, Smax, NSE_log cal, NSE_log val, bias cal, bias val, KGE cal, KGE val):')
     for r in results[:5]:
