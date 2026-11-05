@@ -14,6 +14,8 @@ catchment_obs = pd.read_csv('Datasets/CAMELS_CH_obs_based_2469.csv')
 catchment_sim = pd.read_csv('Datasets/CAMELS_CH_sim_based_2469.csv')
 
 ###########  CALIBRATION RUN
+
+
 # We do a first calibration run, to choose the best mp, Tpbase, mf and T_t for the snow and melt module
 # With the best mp, Tpbase, mf and T_T, we calibrate k and Smax for our simulated discharge.
 # This is done for the period 1982-01-01 and 2000-12-31, and validated against the 2001-01-01 onwards.

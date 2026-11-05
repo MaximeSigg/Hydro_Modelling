@@ -10,17 +10,21 @@ import numpy as np
 import pandas as pd
 
 try:
-
-  from Modules.discharge_module import discharge_module
-  from Modules.interception_module import interception_module
-  from Modules.snow_module import snow_module
-  from Modules.storage_module1 import storage_module
+    from Modules.discharge_module import discharge_module
+    from Modules.interception_module import interception_module
+    from Modules.snow_module import snow_module
+    from Modules.storage_module1 import storage_module
 except ModuleNotFoundError:
+    from discharge_module import discharge_module
+    from interception_module import interception_module
+    from snow_module import snow_module
+    from storage_module1 import storage_module
 
-  from discharge_module import discharge_module
-  from interception_module import interception_module
-  from snow_module import snow_module
-  from storage_module1 import storage_module
+
+# ---- Periods (change here) ----
+CAL_START = '1983-01-01'      # 1981+1982 = spin-up
+CAL_END = '2009-12-31'
+VAL_START = '2010-01-01'
 
 
 def nse(o, m):
@@ -39,17 +43,21 @@ def kge(o, m):
     beta = m.mean() / o.mean()
     return 1 - np.sqrt((r - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2)
 
+
 def calibration_module(obs, sim):
 
     obs.index = sim.index = pd.to_datetime(obs['date'])
 
-    # ---- Step 1: snow parameters (RMSE of SWE) ----
+    cal = (obs.index >= CAL_START) & (obs.index <= CAL_END)
+    val = obs.index >= VAL_START
+
+    # ---- Step 1: snow parameters (RMSE of SWE, calibration period) ----
     mp_list = [1, 1.5, 2, 3]                       # mp < 1: unrealistically wide transition
     Tpbase_list = [-0.5, 0, 0.5, 1, 1.5, 2, 2.5]
     mf_list = [1, 2, 3, 4, 5, 6, 7]                # literature range
     T_T_list = [-2, -1, 0, 1, 2]
 
-    has_swe = obs['swe(mm)'].notna()
+    has_swe = obs['swe(mm)'].notna() & cal
     swe_obs = obs.loc[has_swe, 'swe(mm)']
 
     results = []
@@ -57,14 +65,15 @@ def calibration_module(obs, sim):
         df = snow_module(obs, Tpbase=Tp, mp=mp, mf=mf, T_T=TT)
         swe_mod = df.loc[has_swe, 'SWE_modelled(mm)']
 
+        rmse = np.sqrt(np.mean((swe_mod - swe_obs) ** 2))
         nse_swe = nse(swe_obs, swe_mod)
         nse_log_swe = nse_log(swe_obs, swe_mod)
         bias_swe = bias(swe_obs, swe_mod)
         kge_swe = kge(swe_obs, swe_mod)
 
-        results.append(( mp, Tp, mf, TT, nse_swe, nse_log_swe, bias_swe, kge_swe))
+        results.append((rmse, mp, Tp, mf, TT, nse_swe, nse_log_swe, bias_swe, kge_swe))
     results.sort()
-    print('Best snow parameters ( mp, Tpbase, mf, T_T, NSE, NSE_log, bias, KGE):')
+    print('Best snow parameters (RMSE, mp, Tpbase, mf, T_T, NSE, NSE_log, bias, KGE):')
     for r in results[:5]:
         print(np.round(r, 2))
     best_snow = dict(mp=results[0][1], Tpbase=results[0][2], mf=results[0][3], T_T=results[0][4])
@@ -77,8 +86,6 @@ def calibration_module(obs, sim):
     Smax_list = [50, 100, 200, 300, 500, 750, 1000]
 
     Q_obs = obs['discharge_spec(mm/d)']
-    cal = (obs.index >= '1983-01-01') & (obs.index <= '2009-12-31')  # 1981+1982 = spin-up
-    val = obs.index >= '2010-01-01'
 
     results = []
     for k, Smax in itertools.product(k_list, Smax_list):
@@ -97,7 +104,3 @@ def calibration_module(obs, sim):
     best_k = results[0][2]
     best_Smax = results[0][3]
     return best_snow, best_k, best_Smax
-
-# best snow includes pest snow params stored as: {'mp': 2, 'Tpbase': 1.5, 'mf': 4, 'T_T': 0}
-# results [0][2] is the best k param
-# results[0][3]
