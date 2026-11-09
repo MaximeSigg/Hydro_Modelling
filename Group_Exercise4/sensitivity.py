@@ -20,8 +20,8 @@ from Modules.calibration_module import calibration_module
 # 1. LOAD DATA
 # --------------------------------------------------
 
-observed = pd.read_csv('Datasets/CAMELS_CH_obs_based_2469.csv')
-simulated = pd.read_csv('Datasets/CAMELS_CH_sim_based_2469.csv')
+observed = pd.read_csv('../Datasets/CAMELS_CH_obs_based_2469.csv')
+simulated = pd.read_csv('../Datasets/CAMELS_CH_sim_based_2469.csv')
 
 observed.index = simulated.index = pd.to_datetime(observed['date'])
 
