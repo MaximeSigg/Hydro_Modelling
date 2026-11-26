@@ -93,11 +93,11 @@ def compare(df_camels, df_station, events, q_obs='discharge_spec(mm/d)',
     plt.show()
 
 
-observed  = pd.read_csv('Datasets/CAMELS_CH_obs_based_2469.csv')
-simulated = pd.read_csv('Datasets/CAMELS_CH_sim_based_2469.csv')     # placeholder name
+observed  = pd.read_csv('../Datasets/CAMELS_CH_obs_based_2469.csv')
+simulated = pd.read_csv('../Datasets/CAMELS_CH_sim_based_2469.csv')     # placeholder name
 observed.index = simulated.index = pd.to_datetime(observed['date'])
 
-station = load_station('Datasets/ogd-smn-precip_kas_d_historical.csv')
+station = load_station('../Datasets/ogd-smn-precip_kas_d_historical.csv')
 
 df_camels  = run_model(observed, simulated)                  # CAMELS precipitation
 df_station = run_model(observed, simulated, precip=station)  # station precipitation
