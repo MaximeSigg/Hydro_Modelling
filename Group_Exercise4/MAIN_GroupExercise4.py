@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 # Our model modules
-from Modules.cal_val_g4 import calibration_module
+from Modules.cal_val_g4 import calibration_module_g4
 
 
 #Load CAMELS observed and simulated data
