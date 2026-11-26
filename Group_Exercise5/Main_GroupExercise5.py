@@ -35,7 +35,51 @@ k_list = [0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3]
 Smax_list = [50, 100, 200, 300, 500, 750, 1000]
 
 
-best_snow, best_k, best_Smax = calibration_module_g4(CAL_START, CAL_END, VAL_START,
+best_snow, best_k, best_Smax = calibration_module_g5(CAL_START, CAL_END, VAL_START,
                                                   mp_list, Tpbase_list,mf_list, T_T_list,
                                                   k_list, Smax_list,
                                                   catchment_obs, catchment_sim)
+#%% small plot to  see how it works (takes more time, because of elevation bands)
+from Modules.cal_val_g5 import nse
+
+from Modules.snow_module_elevation_gr5 import snow_module_elevation
+from Modules.interception_module import interception_module
+from Modules.storage_module1 import storage_module
+from Modules.discharge_module import discharge_module
+
+# ---- Plot discharge: observed vs modelled (3 years) ----
+
+# Apply the snow module with calibrated parameters
+df = snow_module_elevation(catchment_obs, **best_snow)
+
+# Apply the remaining modules
+df = interception_module(df, catchment_sim)
+df = storage_module(df, k=best_k, Smax=best_Smax, initial_storage=0)
+df = discharge_module(df)
+
+# Select the 3-year period
+df['date'] = pd.to_datetime(df['date'])
+plot_start = '2005-01-01'
+plot_end = '2007-12-31'
+
+period = (df['date'] >= plot_start) & (df['date'] <= plot_end)
+
+# Calculate NSE for this period
+Q_obs = df.loc[period, 'discharge_spec(mm/d)']
+Q_mod = df.loc[period, 'Q_tot_discharge_(mm/d)']
+
+nse_value = nse(Q_obs, Q_mod)
+
+# Plot
+plt.figure(figsize=(12, 4))
+
+plt.plot(df.loc[period, 'date'], Q_obs, label='Observed', color='black')
+plt.plot(df.loc[period, 'date'], Q_mod, label='Modelled', color='red')
+
+plt.title(f'Discharge: observed vs modelled (NSE = {nse_value:.2f})')
+plt.ylabel('Discharge (mm/d)')
+plt.xlabel('Date')
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.show()
