@@ -1,4 +1,4 @@
-'''
+''' FOR EXERCISE 4
 Calibration Module:
 Function to tune the parameters for the snow/rain separation and for the linear flowerpot model.
 Model is applied to CAMELS observed data, and the calibration is done with the simulated discharge
@@ -40,7 +40,7 @@ def kge(o, m):
     return 1 - np.sqrt((r - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2)
 
 
-def calibration_module(CAL_START, CAL_END, VAL_START, mp_list, Tpbase_list,mf_list, T_T_list, k_list, Smax_list, obs, sim):
+def calibration_module_g4(CAL_START, CAL_END, VAL_START, mp_list, Tpbase_list,mf_list, T_T_list, k_list, Smax_list, obs, sim):
 
     obs.index = sim.index = pd.to_datetime(obs['date'])
 
