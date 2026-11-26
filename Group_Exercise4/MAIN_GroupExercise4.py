@@ -18,16 +18,23 @@
 
 import sys
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parent.parent      # .../Hydro_Modelling
-sys.path.append(str(ROOT))
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+
+
+ROOT = Path(__file__).resolve().parent.parent      # .../Hydro_Modelling
+sys.path.append(str(ROOT))
+
 # Our model modules
 from Modules.cal_val_g4 import calibration_module_g4
+from Modules.snow_module import snow_module
+from Modules.interception_module import interception_module
+from Modules.storage_module1 import storage_module                   #called storage_module1 (WITH THE 1)
+from Modules.discharge_module import discharge_module
+from Modules.calibration_module import calibration_module
+
 
 
 #Load CAMELS observed and simulated data
@@ -58,48 +65,98 @@ best_snow, best_k, best_Smax = calibration_module_g4(CAL_START, CAL_END, VAL_STA
                                                   k_list, Smax_list,
                                                   catchment_obs, catchment_sim)
 
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
-#%% small plot to  see how it works
-from Modules.cal_val_g4 import nse
+#Apply the different modules
 
-from Modules.snow_module import snow_module
-from Modules.interception_module import interception_module
-from Modules.storage_module1 import storage_module
-from Modules.discharge_module import discharge_module
+#1 Snow/rain separation module
+df_snow_rain = snow_module(catchment_obs, Tpbase=best_snow['Tpbase'], mp=best_snow['mp'], mf=best_snow['mf'], T_T=best_snow['T_T'])
+#2 Interception of rain
+df_snow_rain_intercept = interception_module(df_snow_rain, catchment_sim, Icept_threshold=1)
+#3 Storage module: evolution of storage, includes the linear flowerpot for the discharge.
+df_storage = storage_module(df_snow_rain_intercept, k=best_k, Smax=best_Smax, initial_storage=0)
+#4 Discharge module: adds discharge + overflow
+df_discharge = discharge_module(df_storage)
 
-# ---- Plot discharge: observed vs modelled (3 years) ----
 
-# Apply the snow module with calibrated parameters
-df = snow_module(catchment_obs, **best_snow)
+### Plots
+#Creating the plots discharge observed vs modelled and precipitation inverted
 
-# Apply the remaining modules
-df = interception_module(df, catchment_sim)
-df = storage_module(df, k=best_k, Smax=best_Smax, initial_storage=0)
-df = discharge_module(df)
+df_discharge['date'] = pd.to_datetime(df_discharge['date'])
+df = df_discharge.set_index('date').sort_index()
 
-# Select the 3-year period
-df['date'] = pd.to_datetime(df['date'])
-plot_start = '2005-01-01'
-plot_end = '2007-12-31'
+# Find best and worst periods
 
-period = (df['date'] >= plot_start) & (df['date'] <= plot_end)
+window = pd.Timedelta(days=30)       # <-- length of the period
+step = pd.Timedelta(days=1)          # <-- step of the search
 
-# Calculate NSE for this period
-Q_obs = df.loc[period, 'discharge_spec(mm/d)']
-Q_mod = df.loc[period, 'Q_tot_discharge_(mm/d)']
+results = []
 
-nse_value = nse(Q_obs, Q_mod)
+start = df.index.min()               # to skip the spin-up, use: start = pd.Timestamp(CAL_START)
 
-# Plot
-plt.figure(figsize=(12, 4))
+while start + window <= df.index.max():
 
-plt.plot(df.loc[period, 'date'], Q_obs, label='Observed', color='black')
-plt.plot(df.loc[period, 'date'], Q_mod, label='Modelled', color='red')
+    end = start + window
+    d = df.loc[start:end]
 
-plt.title(f'Discharge: observed vs modelled (NSE = {nse_value:.2f})')
-plt.ylabel('Discharge (mm/d)')
-plt.xlabel('Date')
-plt.legend()
-plt.grid(alpha=0.3)
-plt.tight_layout()
+    obs = d['discharge_spec(mm/d)']
+    mod = d['Q_tot_discharge_(mm/d)']
+
+    valid = obs.notna() & mod.notna()
+    obs = obs[valid]
+    mod = mod[valid]
+
+    if len(obs) > 0.75 * window.days:          # at least 75% of the days with data
+
+        denominator = sum((obs - obs.mean())**2)
+
+        if denominator > 0:
+            nse = 1 - sum((obs - mod)**2) / denominator
+            results.append((nse, start, end))
+
+    start = start + step
+
+# Find best and worst periods
+best = max(results, key=lambda x: x[0])
+worst = min(results, key=lambda x: x[0])
+
+print("Best period:", best)
+print("Worst period:", worst)
+
+# Use these periods for plotting
+periods = [
+    (best[1], best[2]),
+    (worst[1], worst[2])
+]
+pmax = max(df.loc[a:b, 'precipitation(mm/d)'].max() for a, b in periods)
+
+
+for a, b in periods:
+    d = df.loc[a:b]
+    fig, ax = plt.subplots(figsize=(9, 4))
+
+    # --- Bottom Plot: Observed vs Modelled Discharge ---
+    ax.plot(d.index, d['discharge_spec(mm/d)'], color='k')
+    ax.plot(d.index, d['Q_tot_discharge_(mm/d)'], color='tab:red')
+    ax.set_ylabel('Discharge [mm/d]')
+    ax.grid(True, linestyle=':', alpha=0.6)
+    # Format date axis to show Year-Month
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=7))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
+    # --- Top Plot: Inverted Precipitation ---
+    axp = ax.twinx()
+    axp.bar(d.index, d['precipitation(mm/d)'], color='tab:blue', width=1.0)
+    ax.set_title(f'{a:%Y-%m-%d} to {b:%Y-%m-%d}', fontsize=10)
+    axp.set_ylim(pmax * 3, 0)
+    axp.set_ylabel('Precip [mm/d]')
+
+    handles = [plt.Line2D([], [], color='k'),
+               plt.Line2D([], [], color='tab:red'),
+               plt.Rectangle((0, 0), 1, 1, color='tab:blue')]
+    fig.legend(handles, ['Observed discharge', 'Modelled discharge', 'Precipitation'],
+               loc='lower center', ncol=3, frameon=False)
+    fig.tight_layout(rect=(0, 0.07, 1, 1))
+
 plt.show()
