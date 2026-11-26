@@ -1,5 +1,5 @@
 '''
-Calibration Module:
+Calibration Module: ONLY FOR EXERCISE 3
 Function to tune the parameters for the snow/rain separation and for the linear flowerpot model.
 Model is applied to CAMELS observed data, and the calibration is done with the simulated discharge
 from CAMELS.
