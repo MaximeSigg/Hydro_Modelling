@@ -53,7 +53,7 @@ k_list = [0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3]
 Smax_list = [50, 100, 200, 300, 500, 750, 1000]
 
 
-best_snow, best_k, best_Smax = calibration_module(CAL_START, CAL_END, VAL_START,
+best_snow, best_k, best_Smax = calibration_module_g4(CAL_START, CAL_END, VAL_START,
                                                   mp_list, Tpbase_list,mf_list, T_T_list,
                                                   k_list, Smax_list,
                                                   catchment_obs, catchment_sim)
