@@ -1,6 +1,6 @@
-''' WITH DATA FROM GROUPE 3 EXERCISE
-Sensitivity Analysis:
-!has still to be reviewed!
+''' SENSITIVITY ANALYSIS:
+This script provides a sensitivity analysis of each parameter used for the simulations.
+This is an independent script of the MAIN_GroupExercise4.py as it provides an individualized analysis of each parameter.
 '''
 
 
