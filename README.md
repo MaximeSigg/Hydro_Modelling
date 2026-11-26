@@ -20,7 +20,15 @@ In Group Exercise 4 we compute a thorough calibration of the parameters through 
 
 CODE structure:
 
-- MAIN_GroupExercise4.py : 
-- Datasets:
+- MAIN_GroupExercise4.py : Main code for running a complete simulation of our model, with output plots.
+- sensitivity.py: side script to analyse the impact of individual parameters on the discharge. This script can be run by itself. 
+- Datasets: contains datasets for CAMELS observed/simulated and the MeteoSwiss Kander station.
 - Modules: we still use the modules from the Group Exercise 3, snow/rain separation module, interception...
-- New functions: calibration_g4.py and validation.py. These are the new functions including the code needed specifically for the Group Exercise 4. 
+- New functions: calibration_g4.py and validation.py. These are the new functions including the code needed specifically for the Group Exercise 4.
+
+## FINAL EXERCISE
+In the final exercise, we built up on all the previous group exercises to obtain the final model. The main difference respect to Exercise 4 is the inclusion of different elevation bands for our cathcment. This affects mainly to the temperature, as for now, we were using temperature corresponding to the mean elevation from CAMELS data for our catchment.
+
+CODE structure: 
+-  Main_Exercise_Final:
+-  Modules: we introduce now snow_elevation_module.py
