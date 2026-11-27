@@ -1,3 +1,18 @@
+'''
+--------------------------------------------------------------------
+                    FINAL EXERCISE
+             MAIN SCRIPT: Final model simulation for Kander-Hondrich catchment
+ Authors: Antonia Schibbe, Jordi Fornés Mengual, Maxime Siggen
+-------------------------------------------------------------------
+ Description: In this exercise we build up on all the previous exercises to obtain
+ our final model for the Kander-Hondrich catchment. We use the best parameters
+ estimated previously. The novelty is the inclusion of different elevation bands
+ to account for different temperatures.
+-------------------------------------------------------------------
+'''
+
+
+
 import sys
 from pathlib import Path
 
