@@ -21,8 +21,7 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-
-
+import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent      # .../Hydro_Modelling
 sys.path.append(str(ROOT))
@@ -65,11 +64,8 @@ best_snow, best_k, best_Smax = calibration_module_g4(CAL_START, CAL_END, VAL_STA
                                                   k_list, Smax_list,
                                                   catchment_obs, catchment_sim)
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 
-#Apply the different modules
+#Apply the different modules: CHOOSE BEST AND WORST CASE OF OUR MODEL
 
 #1 Snow/rain separation module
 df_snow_rain = snow_module(catchment_obs, Tpbase=best_snow['Tpbase'], mp=best_snow['mp'], mf=best_snow['mf'], T_T=best_snow['T_T'])
@@ -151,6 +147,65 @@ for a, b in periods:
     ax.set_title(f'{a:%Y-%m-%d} to {b:%Y-%m-%d}', fontsize=10)
     axp.set_ylim(pmax * 3, 0)
     axp.set_ylabel('Precip [mm/d]')
+
+    handles = [plt.Line2D([], [], color='k'),
+               plt.Line2D([], [], color='tab:red'),
+               plt.Rectangle((0, 0), 1, 1, color='tab:blue')]
+    fig.legend(handles, ['Observed discharge', 'Modelled discharge', 'Precipitation'],
+               loc='lower center', ncol=3, frameon=False)
+    fig.tight_layout(rect=(0, 0.07, 1, 1))
+
+plt.show()
+
+
+## Here you can choose any period from our model simulation
+
+PERIODS = [
+    ('Good Fit',   '2014-04-05', '2014-05-03'),     # <-- placeholder dates, change them
+    ('Bad fit',     '2005-05-01', '2005-05-31'),     # <-- placeholder dates, change them
+]
+
+
+
+def nse_fn(o, m):
+    return 1 - ((o - m) ** 2).sum() / ((o - o.mean()) ** 2).sum()
+
+def kge_fn(o, m):
+    r = np.corrcoef(o, m)[0, 1]
+    alpha = m.std() / o.std()
+    beta = m.mean() / o.mean()
+    return 1 - np.sqrt((r - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2)
+
+
+my_periods = [(label, pd.Timestamp(a), pd.Timestamp(b)) for label, a, b in PERIODS]
+pmax_my = max(df.loc[a:b, 'precipitation(mm/d)'].max() for _, a, b in my_periods)
+
+for label, a, b in my_periods:
+    d = df.loc[a:b]
+
+    o, m = d['discharge_spec(mm/d)'], d['Q_tot_discharge_(mm/d)']
+    ok = o.notna() & m.notna()
+    nse_p, kge_p = nse_fn(o[ok], m[ok]), kge_fn(o[ok], m[ok])
+    print(f'{label}: {a:%Y-%m-%d} to {b:%Y-%m-%d} | NSE = {nse_p:.2f} | KGE = {kge_p:.2f}')
+
+    fig, ax = plt.subplots(figsize=(9, 4))
+
+    # --- Bottom Plot: Observed vs Modelled Discharge ---
+    ax.plot(d.index, d['discharge_spec(mm/d)'], color='k')
+    ax.plot(d.index, d['Q_tot_discharge_(mm/d)'], color='tab:red')
+    ax.set_ylabel('Discharge [mm/d]')
+    ax.grid(True, linestyle=':', alpha=0.6)
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=7))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
+
+    # --- Top Plot: Inverted Precipitation ---
+    axp = ax.twinx()
+    axp.bar(d.index, d['precipitation(mm/d)'], color='tab:blue', width=1.0)
+    axp.set_ylim(pmax_my * 3, 0)
+    axp.set_ylabel('Precip [mm/d]')
+
+    ax.set_title(f'{label}: {a:%Y-%m-%d} to {b:%Y-%m-%d}\nNSE = {nse_p:.2f}   |   KGE = {kge_p:.2f}',
+                 fontsize=10)
 
     handles = [plt.Line2D([], [], color='k'),
                plt.Line2D([], [], color='tab:red'),
